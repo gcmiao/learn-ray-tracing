@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include "MathUtils.h"
 #include "Ray.h"
 
 using namespace glm;
@@ -12,12 +13,20 @@ public:
 	vec3 horizontal;
 	vec3 vertical;
 
-	Camera()
+	Camera(const vec3& lookFrom, const vec3& lookAt, const vec3& vup,
+				 float vfov, float aspect) // vfov is top to bottom in degrees
 	{
-		lowerLeftCorner = vec3(-2.0, -1.0, -1.0);
-		horizontal = vec3(4.0, 0.0, 0.0);
-		vertical = vec3(0.0, 2.0, 0.0);
-		origin = vec3(0.0, 0.0, 0.0);
+		vec3 u, v, w;
+		float theta = vfov * M_PI / 180;
+		float halfHeight = tan(theta / 2);
+		float halfWidth = aspect * halfHeight;
+		origin = lookFrom;
+		w = normalize(lookFrom - lookAt);
+		u = normalize(cross(vup, w));
+		v = cross(w, u);
+		lowerLeftCorner = origin - halfWidth * u - halfHeight * v - w;
+		horizontal = 2 * halfWidth * u;
+		vertical = 2 * halfHeight * v;
 	}
 
 	Ray getRay(float u, float v)

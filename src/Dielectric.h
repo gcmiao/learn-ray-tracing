@@ -1,12 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "MathUtils.h"
 #include "Material.h"
-#include "drand48.h"
 
 using namespace glm;
-
-extern vec3 randomInUnitSphere();
-extern vec3 reflect(const vec3& v, const vec3& n);
 
 bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
 {

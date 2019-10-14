@@ -7,7 +7,6 @@
 #include "HitableList.h"
 #include "Camera.h"
 #include <float.h>
-#include "drand48.h"
 #include "Lambertian.h"
 #include "Metal.h"
 #include "Dielectric.h"
@@ -61,8 +60,11 @@ int main()
 	out << "P3\n" << nx << " " << ny << "\n255\n";
 
 	Hitable *list[OBJ_COUNT];
+	float R = cos(M_PI / 4);
 	list[0] = new Sphere(vec3(0, 0, -1), 0.5, new Lambertian(vec3(0.1, 0.2, 0.5)));
 	list[1] = new Sphere(vec3(0, -100.5, -1), 100, new Lambertian(vec3(0.8, 0.8, 0.0)));
+	// list[0] = new Sphere(vec3(-R, 0, -1), R, new Lambertian(vec3(0, 0, 1)));
+	// list[1] = new Sphere(vec3(R, 0, -1), R, new Lambertian(vec3(1, 0, 0)));
 	list[2] = new Sphere(vec3(1, 0, -1), 0.5, new Metal(vec3(0.8, 0.6, 0.2), 1.0));
 	list[3] = new Sphere(vec3(-1, 0, -1), 0.5, new Dielectric(1.5));
 	// if you use a negative radius, the geometry is unaffected
@@ -70,8 +72,9 @@ int main()
 	// so it can be used as a bubble to make a hollow glass sphere
 	list[4] = new Sphere(vec3(-1, 0, -1), -0.45, new Dielectric(1.5));
 	Hitable *world = new HitableList(list, OBJ_COUNT);
+	// world = new HitableList(list, 2);
 
-	Camera cam;
+	Camera cam(vec3(-2, 2, 1), vec3(0, 0, -1), vec3(0, 1, 0), 20, float(nx) / float(ny));
 	for (int j = ny - 1; j >= 0; j--)
 	{
 		for (int i = 0; i < nx; i++)

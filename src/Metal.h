@@ -1,16 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "Material.h"
-#include "drand48.h"
+#include "MathUtils.h"
 
 using namespace glm;
-
-extern vec3 randomInUnitSphere();
-
-vec3 reflect(const vec3& v, const vec3& n)
-{
-	return v - 2 * dot(v, n) * n;
-}
 
 class Metal : public Material {
 public:
