@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <glm/vec3.hpp>
 #include <glm/glm.hpp>
 #include "Ray.h"
 #include "Sphere.h"
@@ -9,39 +8,38 @@
 #include "Camera.h"
 #include <float.h>
 #include "drand48.h"
+#include "Lambertian.h"
+#include "Metal.h"
 
 using namespace std;
 using namespace glm;
 
 const static char OUTPUT_TEMP_NAME[] = "img.ppm";
-const static int BOUNCE_LIMIT_COUNT = 0;
+const static int BOUNCE_LIMIT_COUNT = 50;
 const static float REFLECT_RATE = 0.5;
 const static float HIT_ESP = 0.001;
 const static int NS = 100;
+const static int OBJ_COUNT = 4;
 
-vec3 randomInUnitSphere()
-{
-	vec3 p;
-	do {
-		// random point in 2x2x2 cube that bounds the unit sphere
-		p = 2.f * vec3(drand48(), drand48(), drand48()) - vec3(1, 1, 1);
-	} while (length(p) >= 1.0); // reject the point that out of the unit shpere
-	return p;
-}
-
-vec3 color(const Ray& r, Hitable *world, int level = 0)
+vec3 color(const Ray& r, Hitable *world, int depth = 0)
 {
 	HitRecord rec;
-	if (world->hit(r, HIT_ESP, FLT_MAX, rec) && (level < BOUNCE_LIMIT_COUNT || BOUNCE_LIMIT_COUNT == 0))
+	if (world->hit(r, HIT_ESP, FLT_MAX, rec))
 	{
-		// get a random point based on the hit point
-		vec3 target = rec.p + rec.normal + randomInUnitSphere();
-		// the reflected ray is towards the target
-		// may be hit another sphere
-		// so the the adjacent region will be darker because
-		// the shpere absorbs 50% of energy on each bounce
-		// the color will be scaled smaller and smaller
-		return REFLECT_RATE * color(Ray(rec.p, target - rec.p), world, level + 1);
+		Ray scattered;
+		vec3 attenuation;
+		if (depth < BOUNCE_LIMIT_COUNT && rec.matPtr->scatter(r, rec, attenuation, scattered))
+		{
+			// the reflected ray maybe hit another sphere
+			// so the the adjacent region will be darker because
+			// the shpere absorbs energy on each bounce
+			// the color will be scaled smaller and smaller
+			return attenuation * color(scattered, world, depth + 1);
+		}
+		else
+		{
+			return vec3(0, 0, 0);
+		}
 	}
 	else
 	{
@@ -61,10 +59,12 @@ int main()
 	out.open(OUTPUT_TEMP_NAME, ios::out | ios::trunc);
 	out << "P3\n" << nx << " " << ny << "\n255\n";
 
-	Hitable *list[2];
-	list[0] = new Sphere(vec3(0, 0, -1), 0.5);
-	list[1] = new Sphere(vec3(0, -100.5, -1), 100);
-	Hitable *world = new HitableList(list, 2);
+	Hitable *list[OBJ_COUNT];
+	list[0] = new Sphere(vec3(0, 0, -1), 0.5, new Lambertian(vec3(0.8, 0.3, 0.3)));
+	list[1] = new Sphere(vec3(0, -100.5, -1), 100, new Lambertian(vec3(0.8, 0.8, 0.0)));
+	list[2] = new Sphere(vec3(1, 0, -1), 0.5, new Metal(vec3(0.8, 0.6, 0.2), 1.0));
+	list[3] = new Sphere(vec3(-1, 0, -1), 0.5, new Metal(vec3(0.8, 0.8, 0.8), 0.3));
+	Hitable *world = new HitableList(list, OBJ_COUNT);
 
 	Camera cam;
 	for (int j = ny - 1; j >= 0; j--)
@@ -94,4 +94,6 @@ int main()
 	out.close();
 	char fileName[100];
 	snprintf(fileName, 100, "img_ns_%d_ref_%.2f_l_%d_esp_%.4f.ppm", NS, REFLECT_RATE, BOUNCE_LIMIT_COUNT, HIT_ESP);
+	// rename(OUTPUT_TEMP_NAME, fileName);
+	return 0;
 }

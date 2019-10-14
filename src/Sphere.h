@@ -3,14 +3,16 @@
 #include "Hitable.h"
 
 using namespace glm;
+class Material;
 class Sphere : public Hitable
 {
 public:
 	vec3 center;
 	float radius;
+	Material* material;
 
 	Sphere() {}
-	Sphere(vec3 cen, float r) : center(cen), radius(r) {};
+	Sphere(vec3 cen, float r, Material* m) : center(cen), radius(r), material(m) {};
 
 	virtual bool hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const;
 };
@@ -30,6 +32,7 @@ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const
 			rec.t = temp;
 			rec.p = r.pointAtParameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
+			rec.matPtr = material;
 			return true;
 		}
 		temp = (-b + sqrt(discriminant)) / a;
@@ -38,6 +41,7 @@ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const
 			rec.t = temp;
 			rec.p = r.pointAtParameter(rec.t);
 			rec.normal = (rec.p - center) / radius;
+			rec.matPtr = material;
 			return true;
 		}
 	}

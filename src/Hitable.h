@@ -3,11 +3,14 @@
 #include "Ray.h"
 
 using namespace glm;
+
+class Material;
 struct HitRecord
 {
 	float t;
 	vec3 p;
 	vec3 normal;
+	Material* matPtr;
 };
 
 class Hitable
