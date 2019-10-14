@@ -105,7 +105,7 @@ int main()
 	vec3 lookAt(0, 0, 0);
 	float distToFocus = 10;
 	float aperture = 0.0;
-	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus, 0.0, 1.0);
+	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus, 0.0, 0.5);
 
 	int procNum = omp_get_num_procs();
 	#pragma omp parallel num_threads(procNum)
