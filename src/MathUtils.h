@@ -14,6 +14,15 @@ vec3 randomInUnitSphere()
 	return p;
 }
 
+vec3 randomInUnitDisk()
+{
+	vec3 p;
+	do {
+		p = 2.f * vec3(drand48(), drand48(), 0) - vec3(1, 1, 0);
+	} while (length(p) >= 1.0);
+	return p;
+}
+
 vec3 reflect(const vec3& v, const vec3& n)
 {
 	return v - 2 * dot(v, n) * n;

@@ -74,7 +74,11 @@ int main()
 	Hitable *world = new HitableList(list, OBJ_COUNT);
 	// world = new HitableList(list, 2);
 
-	Camera cam(vec3(-2, 2, 1), vec3(0, 0, -1), vec3(0, 1, 0), 20, float(nx) / float(ny));
+	vec3 lookFrom(3, 3, 2);
+	vec3 lookAt(0, 0, -1);
+	float distToFocus = length(lookFrom - lookAt);
+	float aperture = 2.0;
+	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus);
 	for (int j = ny - 1; j >= 0; j--)
 	{
 		for (int i = 0; i < nx; i++)
