@@ -21,21 +21,22 @@ public:
 	{
 		lensRadius = aperture / 2;
 		float theta = vfov * M_PI / 180;
-		float halfHeight = tan(theta / 2);
-		float halfWidth = aspect * halfHeight;
+		float halfHeight = tan(theta / 2); // scalar height at unit focus distance
+		float halfWidth = aspect * halfHeight; // scalar width at unit focus distance
 		origin = lookFrom;
-		w = normalize(lookFrom - lookAt);
-		u = normalize(cross(vup, w));
-		v = cross(w, u);
-		lowerLeftCorner = origin - focusDist * (halfWidth * u + halfHeight * v + w);
-		horizontal = 2 * halfWidth * focusDist * u;
-		vertical = 2 * halfHeight * focusDist * v;
+		w = normalize(lookFrom - lookAt); // looking direction
+		u = normalize(cross(vup, w)); // horizontal vector
+		v = cross(w, u); // vertical vector
+		lowerLeftCorner = origin - focusDist * (halfWidth * u + halfHeight * v + w); // scale unit distance to actual focus distance
+		horizontal = 2 * halfWidth * focusDist * u; // width of focus/near plane
+		vertical = 2 * halfHeight * focusDist * v; // height of focus/near plane
 	}
 
 	Ray getRay(float s, float t)
 	{
 		vec3 rd = lensRadius * randomInUnitDisk();
 		vec3 offset = u * rd.x + v * rd.y;
+		// ray shoots from a random point on the lens to the focus/near plane
 		return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset);
 	}
 };
