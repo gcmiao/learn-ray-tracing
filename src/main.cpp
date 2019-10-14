@@ -10,6 +10,7 @@
 #include "drand48.h"
 #include "Lambertian.h"
 #include "Metal.h"
+#include "Dielectric.h"
 
 using namespace std;
 using namespace glm;
@@ -19,7 +20,7 @@ const static int BOUNCE_LIMIT_COUNT = 50;
 const static float REFLECT_RATE = 0.5;
 const static float HIT_ESP = 0.001;
 const static int NS = 100;
-const static int OBJ_COUNT = 4;
+const static int OBJ_COUNT = 5;
 
 vec3 color(const Ray& r, Hitable *world, int depth = 0)
 {
@@ -60,10 +61,14 @@ int main()
 	out << "P3\n" << nx << " " << ny << "\n255\n";
 
 	Hitable *list[OBJ_COUNT];
-	list[0] = new Sphere(vec3(0, 0, -1), 0.5, new Lambertian(vec3(0.8, 0.3, 0.3)));
+	list[0] = new Sphere(vec3(0, 0, -1), 0.5, new Lambertian(vec3(0.1, 0.2, 0.5)));
 	list[1] = new Sphere(vec3(0, -100.5, -1), 100, new Lambertian(vec3(0.8, 0.8, 0.0)));
 	list[2] = new Sphere(vec3(1, 0, -1), 0.5, new Metal(vec3(0.8, 0.6, 0.2), 1.0));
-	list[3] = new Sphere(vec3(-1, 0, -1), 0.5, new Metal(vec3(0.8, 0.8, 0.8), 0.3));
+	list[3] = new Sphere(vec3(-1, 0, -1), 0.5, new Dielectric(1.5));
+	// if you use a negative radius, the geometry is unaffected
+	// but the surface normal points inward
+	// so it can be used as a bubble to make a hollow glass sphere
+	list[4] = new Sphere(vec3(-1, 0, -1), -0.45, new Dielectric(1.5));
 	Hitable *world = new HitableList(list, OBJ_COUNT);
 
 	Camera cam;
