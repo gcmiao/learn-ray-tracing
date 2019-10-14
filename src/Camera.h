@@ -13,12 +13,16 @@ public:
 	vec3 horizontal;
 	vec3 vertical;
 	vec3 u, v, w;
+	float time0, time1;
 	float lensRadius;
 
 	Camera(const vec3& lookFrom, const vec3& lookAt, const vec3& vup,
-				 float vfov, float aspect,
-				 float aperture, float focusDist) // vfov is top to bottom in degrees
+				 float vfov, float aspect, // vfov is top to bottom in degrees
+				 float aperture, float focusDist,
+				 float t0, float t1)
 	{
+		time0 = t0;
+		time1 = t1;
 		lensRadius = aperture / 2;
 		float theta = vfov * M_PI / 180;
 		float halfHeight = tan(theta / 2); // scalar height at unit focus distance
@@ -36,7 +40,8 @@ public:
 	{
 		vec3 rd = lensRadius * randomInUnitDisk();
 		vec3 offset = u * rd.x + v * rd.y;
+		float time = time0 + drand48() * (time1 - time0);
 		// ray shoots from a random point on the lens to the focus/near plane
-		return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset);
+		return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset, time);
 	}
 };

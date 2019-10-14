@@ -66,11 +66,11 @@ public:
 		}
 		if (drand48() < reflectProb)
 		{
-			scattered = Ray(rec.p, reflected);
+			scattered = Ray(rec.p, reflected, rIn.getTime());
 		}
 		else
 		{
-			scattered = Ray(rec.p, refracted);
+			scattered = Ray(rec.p, refracted, rIn.getTime());
 		}
 		return true;
 	}

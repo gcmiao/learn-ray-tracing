@@ -15,7 +15,7 @@ public:
 	virtual bool scatter(const Ray& rIn, const HitRecord& rec, vec3& attenuation, Ray& scattered) const
 	{
 		vec3 reflected = reflect(normalize(rIn.direction()), rec.normal);
-		scattered = Ray(rec.p, reflected + fuzz * randomInUnitSphere()); // diffuse around reflected direction
+		scattered = Ray(rec.p, reflected + fuzz * randomInUnitSphere(), rIn.getTime()); // diffuse around reflected direction
 		attenuation = albedo;
 		return dot(scattered.direction(), rec.normal) > 0;
 	}

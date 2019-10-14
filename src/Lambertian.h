@@ -16,7 +16,7 @@ public:
 	{
 		// get a random point based on the hit point
 		vec3 target = rec.p + rec.normal + randomInUnitSphere();
-		scattered = Ray(rec.p, target - rec.p);
+		scattered = Ray(rec.p, target - rec.p, rIn.getTime());
 		attenuation = albedo;
 		return true;
 	}

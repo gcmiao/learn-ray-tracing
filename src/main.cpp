@@ -10,6 +10,7 @@
 #include "Lambertian.h"
 #include "Metal.h"
 #include "Dielectric.h"
+#include "MovingSphere.h"
 #include <omp.h>
 
 using namespace std;
@@ -52,13 +53,13 @@ vec3 color(const Ray& r, Hitable *world, int depth = 0)
 
 Hitable* randomScene()
 {
-	int n = 500;
+	int n = 50000;
 	Hitable** list = new Hitable*[n + 1];
 	list[0] = list[1] = new Sphere(vec3(0, -1000, 0), 1000, new Lambertian(vec3(0.5, 0.5, 0.5)));
 	int i = 1;
-	for (int aa = -11; aa < 11; aa++)
+	for (int aa = -10; aa < 10; aa++)
 	{
-		for (int bb = -11; bb < 11; bb++)
+		for (int bb = -10; bb < 10; bb++)
 		{
 			float chooseMat = drand48();
 			vec3 center(aa + 0.9 * drand48(), 0.2, bb + 0.9 * drand48());
@@ -66,7 +67,7 @@ Hitable* randomScene()
 			{
 				if (chooseMat < 0.8) // diffuse
 				{
-					list[i++] = new Sphere(center, 0.2, new Lambertian(vec3(drand48() * drand48(), drand48() * drand48(), drand48() * drand48())));
+					list[i++] = new MovingSphere(center, center + vec3(0, 0.5 * drand48(), 0), 0.0, 1.0, 0.2, new Lambertian(vec3(drand48() * drand48(), drand48() * drand48(), drand48() * drand48())));
 				}
 				else if (chooseMat < 0.95) // metal
 				{
@@ -88,8 +89,8 @@ Hitable* randomScene()
 
 int main()
 {
-	int nx = 1200;
-	int ny = 800;
+	int nx = 600;
+	int ny = 400;
 	int lw = 13;
 
 	ofstream out;
@@ -103,9 +104,9 @@ int main()
 	vec3 lookFrom(13, 2, 3);
 	vec3 lookAt(0, 0, 0);
 	float distToFocus = 10;
-	float aperture = 0.1;
-	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus);
-	
+	float aperture = 0.0;
+	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus, 0.0, 1.0);
+
 	int procNum = omp_get_num_procs();
 	#pragma omp parallel num_threads(procNum)
 	#pragma omp for
