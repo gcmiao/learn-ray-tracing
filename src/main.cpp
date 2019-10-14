@@ -10,6 +10,7 @@
 #include "Lambertian.h"
 #include "Metal.h"
 #include "Dielectric.h"
+#include <omp.h>
 
 using namespace std;
 using namespace glm;
@@ -89,10 +90,13 @@ int main()
 {
 	int nx = 1200;
 	int ny = 800;
+	int lw = 13;
 
 	ofstream out;
 	out.open(OUTPUT_TEMP_NAME, ios::out | ios::trunc);
 	out << "P3\n" << nx << " " << ny << "\n255\n";
+
+	char* outCache = new char[nx * ny * lw + 10]{ 0 };
 
 	Hitable* world = randomScene();
 
@@ -101,6 +105,10 @@ int main()
 	float distToFocus = 10;
 	float aperture = 0.1;
 	Camera cam(lookFrom, lookAt, vec3(0, 1, 0), 20, float(nx) / float(ny), aperture, distToFocus);
+	
+	int procNum = omp_get_num_procs();
+	#pragma omp parallel num_threads(procNum)
+	#pragma omp for
 	for (int j = ny - 1; j >= 0; j--)
 	{
 		for (int i = 0; i < nx; i++)
@@ -121,9 +129,19 @@ int main()
 			int ig = int(255.99 * col[1]);
 			int ib = int(255.99 * col[2]);
 
-			out << ir << " " << ig << " " << ib << "\n";
+			// out << ir << " " << ig << " " << ib << "\n";
+			snprintf(outCache + (j * nx + i) * lw, lw, "%d %d %d\n", ir, ig, ib);
 		}
-		printf("Complete: %d / %d\n", ny - j, ny);
+		int tid = omp_get_thread_num();
+		printf("Complete: %d / %d on thread %d\n", ny - j, ny, tid);
+	}
+
+	for (int j = ny - 1; j >= 0; j--)
+	{
+		for (int i = 0; i < nx; i++)
+		{
+			out << outCache + (j * nx + i) * lw;
+		}
 	}
 	out.close();
 	char fileName[100];
